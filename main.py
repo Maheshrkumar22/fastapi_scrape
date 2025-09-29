@@ -2,11 +2,22 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.exceptions import HTTPException
+from url_scrape_data import scrape_data
+import json
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="Vercel + FastAPI",
     description="Vercel + FastAPI",
     version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
 )
 
 
@@ -41,6 +52,20 @@ def get_item(item_id: int):
         },
         "timestamp": "2024-01-01T00:00:00Z"
     }
+
+def process(url_name):
+
+    results_json_string = scrape_data(url_name)
+    # Parse the JSON string back into a Python list/dictionary
+    results_list = json.loads(results_json_string)
+    return results_list
+    
+
+
+@app.get("/api/{url_name:path}")
+def read_item(url_name: str, q: Union[str, None] = None):
+    results_json = process(url_name)
+    return results_json
 
 
 @app.get("/", response_class=HTMLResponse)
