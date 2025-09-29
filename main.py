@@ -63,7 +63,7 @@ def process(url_name):
 
 
 @app.get("/api/{url_name:path}")
-def read_item(url_name: str, q: Union[str, None] = None):
+def read_item(url_name: str):
     results_json = process(url_name)
     return results_json
 
